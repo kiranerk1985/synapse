@@ -1,0 +1,20 @@
+{
+	"name": "12-create view payment type",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/ldw"
+		},
+		"content": {
+			"query": "\nCREATE VIEW Bronze.vw_payment_type\nAS\nSELECT\n      payment_type ,       description \n    \nFROM \n    OPENROWSET(\n            BULK '/raw/payment_type.json',\n            DATA_SOURCE='nyc_taxi_src' ,\n            FORMAT='CSV',\n            PARSER_VERSION='1.0',\n            FIELDTERMINATOR='0x0b',\n            FIELDQUOTE='0x0b',\n            ROWTERMINATOR='0x0a'\n    ) \n    WITH (jsonDoc NVARCHAR(MAX)) as payment_trip\n    CROSS APPLY OPENJSON(jsonDoc)\n    WITH (\n      payment_type SMALLINT,\n      description VARCHAR(20) '$.payment_type_desc'\n    );\n      \n    ; \nGO\n    SELECT * FROM Bronze.vw_payment_type;\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_tax_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
