@@ -1,0 +1,20 @@
+{
+	"name": "2-assigndatatypes",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/discovery"
+		},
+		"content": {
+			"query": "SELECT\n    *\n    \nFROM\n    OPENROWSET(\n        BULK 'abfss://nyc-taxi-data@azuresynapsestorage1202.dfs.core.windows.net/raw/taxi_zone.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) \nWITH (LocationID SMALLINT\n     ,Borough VARCHAR(15)\n     ,Zone VARCHAR(50)\n     ,service_zone VARCHAR(15)\n     ) as [result]\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

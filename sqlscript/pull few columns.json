@@ -1,0 +1,20 @@
+{
+	"name": "pull few columns",
+	"properties": {
+		"folder": {
+			"name": "discovery"
+		},
+		"content": {
+			"query": "-- This is auto-generated code\nSELECT\n    LocationID,Zone\n    \nFROM\n    OPENROWSET(\n        BULK 'https://azuresynapsestorage1202.dfs.core.windows.net/demo/taxi_zone.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) \nWITH (LocationID INT,Zone NVARCHAR(80)) as rows\n\n\nEXEC sp_describe_first_result_set N'SELECT\n    *\n    \nFROM\n    OPENROWSET(\n        BULK ''https://azuresynapsestorage1202.dfs.core.windows.net/demo/taxi_zone.csv'',\n        FORMAT = ''CSV'',\n        PARSER_VERSION = ''2.0'',\n        HEADER_ROW=TRUE\n    ) as [result]'",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

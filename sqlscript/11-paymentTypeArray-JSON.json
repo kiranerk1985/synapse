@@ -1,0 +1,20 @@
+{
+	"name": "11-paymentTypeArray-JSON",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/discovery"
+		},
+		"content": {
+			"query": "SELECT\n      JSON_VALUE(jsonDoc,'$.payment_type') as payment_type,\n      JSON_VALUE(jsonDoc,'$.payment_type_desc[0].value') as payment_type_desc_0,\n      JSON_VALUE(jsonDoc,'$.payment_type_desc[1].value') as payment_type_desc_1\n    \nFROM \n    OPENROWSET(\n            BULK '/raw/payment_type_array.json',\n            DATA_SOURCE='nyc_taxi_data' ,\n            FORMAT='CSV',\n            PARSER_VERSION='1.0',\n            FIELDTERMINATOR='0x0b',\n            FIELDQUOTE='0x0b',\n            ROWTERMINATOR='0x0a'\n    ) \n    WITH (jsonDoc NVARCHAR(MAX)) as payment_trip\n   ;\n\n--- Use openjson to explode    \nSELECT\n      -- JSON_VALUE(jsonDoc,'$.payment_type') as payment_type,\n      --JSON_VALUE(jsonDoc,'$.payment_type_desc[0].value') as payment_type_desc_0,\n      -- JSON_VALUE(jsonDoc,'$.payment_type_desc[1].value') as payment_type_desc_1\n    payment_type,sub_type,payment_type_desc_value\nFROM \n    OPENROWSET(\n            BULK '/raw/payment_type_array.json',\n            DATA_SOURCE='nyc_taxi_data' ,\n            FORMAT='CSV',\n            PARSER_VERSION='1.0',\n            FIELDTERMINATOR='0x0b',\n            FIELDQUOTE='0x0b',\n            ROWTERMINATOR='0x0a'\n    ) \n    WITH (jsonDoc NVARCHAR(MAX)) as payment_trip\n    CROSS APPLY OPENJSON(jsonDoc)\n    WITH (\n      payment_type SMALLINT,\n      payment_type_desc NVARCHAR(MAX) as JSON \n    )\n    CROSS APPLY OPENJSON(payment_type_desc )\n    WITH(\n            sub_type SMALLINT,\n            payment_type_desc_value NVARCHAR(200)  '$.value'\n\n    )\n    \n    ; \n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "4- create bonze tables",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/ldw"
+		},
+		"content": {
+			"query": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES  WHERE  TABLE_NAME='taxi_zone' AND TABLE_SCHEMA='Bronze')\nDROP EXTERNAL TABLE Bronze.taxi_zone;\nGO\nCREATE EXTERNAL TABLE  Bronze.taxi_zone\n(\n    location_id SMALLINT,\n    borough VARCHAR(15),\n    zone VARCHAR(50),\n    service_zone VARCHAR(15)\n)\nWITH \n(\n    LOCATION='raw/taxi_zone.csv',\n    DATA_SOURCE= nyc_taxi_src,\n    FILE_FORMAT= csv_file_format_pw1,\n    REJECT_VALUE=10,\n    REJECTED_ROW_LOCATION='rejections/taxi_zone'\n);\n\n\nSELECT * From   Bronze.taxi_zone;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_tax_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

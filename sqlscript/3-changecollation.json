@@ -1,0 +1,20 @@
+{
+	"name": "3-changecollation",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/discovery"
+		},
+		"content": {
+			"query": "--select * from sys.databases;\n\nSELECT\n    *\n    \nFROM\n    OPENROWSET(\n        BULK 'abfss://nyc-taxi-data@azuresynapsestorage1202.dfs.core.windows.net/raw/taxi_zone.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) \nWITH (LocationID SMALLINT\n     ,Borough VARCHAR(15)  COLLATE Latin1_General_100_CI_AI_SC_UTF8 \n     ,Zone VARCHAR(50)   COLLATE Latin1_General_100_CI_AI_SC_UTF8 \n     ,service_zone VARCHAR(15)  COLLATE Latin1_General_100_CI_AI_SC_UTF8 \n     ) as [result]\n\n\nCREATE DATABASE  nyc_taxi_discovery;\n\nUSE nyc_taxi_discovery;\n\n\nALTER  DATABASE  nyc_taxi_discovery   COLLATE Latin1_General_100_CI_AI_SC_UTF8 ;\n\n\n\n\nSELECT\n    *\n    \nFROM\n    OPENROWSET(\n        BULK 'abfss://nyc-taxi-data@azuresynapsestorage1202.dfs.core.windows.net/raw/taxi_zone.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) \nWITH (LocationID SMALLINT\n     ,Borough VARCHAR(15)  \n     ,Zone VARCHAR(50)  \n     ,service_zone VARCHAR(15) \n     ) as [result]\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

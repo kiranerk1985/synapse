@@ -1,0 +1,20 @@
+{
+	"name": "16-tripdata-delta",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/discovery"
+		},
+		"content": {
+			"query": "\n-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK '/raw/trip_data_green_delta/',\n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'DELTA'\n    ) AS [result]\n    \nEXEC sp_describe_first_result_set N'\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK ''/raw/trip_data_green_delta/'',\n        DATA_SOURCE=''nyc_taxi_data'',\n        FORMAT = ''DELTA''\n    ) AS [result]\n'\n\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK '/raw/trip_data_green_delta/',\n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'DELTA'\n    ) \nWITH (\nVendorID  int,\nlpep_pickup_datetime  datetime2(7),\nlpep_dropoff_datetime  datetime2(7),\nstore_and_fwd_flag  varchar(20),\nRatecodeID  int,\nPULocationID  int,\nDOLocationID  int,\npassenger_count  int,\ntrip_distance  float,\nfare_amount  float,\nextra  float,\nmta_tax  float,\ntip_amount  float,\ntolls_amount  float,\nehail_fee  int,\nimprovement_surcharge  float,\ntotal_amount  float,\npayment_type  int,\ntrip_type  int,\ncongestion_surcharge  float,\nyear  varchar(20),\nmonth  varchar(20)\n) AS [result]\n\n\n\n\n-- select reuired columns\n\n-- need specify partition columns \n\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK '/raw/trip_data_green_delta/',\n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'DELTA'\n    ) \nWITH (\n\ntip_amount  float,\n\ntrip_type  int,\n\nyear  varchar(20),\nmonth  varchar(20)\n) AS [result]\n\n\n\n\n\n-- select based on year and month\n\n-- need specify partition columns \n\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK '/raw/trip_data_green_delta/',\n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'DELTA'\n    ) \nWITH (\ntip_amount  float,\ntrip_type  int,\n\nyear  varchar(20),\nmonth  varchar(20)\n) AS [result]\nWHERE YEAR='2020' and month='01'\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

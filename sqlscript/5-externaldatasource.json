@@ -1,0 +1,20 @@
+{
+	"name": "5-externaldatasource",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/discovery"
+		},
+		"content": {
+			"query": "CREATE EXTERNAL DATA SOURCE nyc_taxi_data\nWITH (\nlocation  = 'abfss://nyc-taxi-data@azuresynapsestorage1202.dfs.core.windows.net/'\n\n)\n\n\n\nSELECT     *\nFROM\n    OPENROWSET(\n        BULK 'raw/taxi_zone.csv',\n        DATA_SOURCE ='nyc_taxi_data',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) \n/* you need to sepcify the ordinal position when slelecting few columns or it will\ntake in order */\nWITH (LocationID SMALLINT  1\n     ,Zone VARCHAR(50)   3\n    ) as [result]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

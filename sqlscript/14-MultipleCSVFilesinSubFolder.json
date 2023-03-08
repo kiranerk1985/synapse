@@ -1,0 +1,20 @@
+{
+	"name": "14-MultipleCSVFilesinSubFolder",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/discovery"
+		},
+		"content": {
+			"query": "-- Select data from Sub Folders\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK '/raw/trip_data_green_csv/year=2020/**',\n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) AS [result]\n\n\n-- Few Folders\n\n-- Select data from Sub Folders\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK ('/raw/trip_data_green_csv/year=2020/month=01/*.csv'\n                ,'/raw/trip_data_green_csv/year=2020/month=02/*.csv'),\n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) AS [result]\n\n-- Use more than one wild charceters\n\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK '/raw/trip_data_green_csv/year=*/month=*/*.csv',\n               \n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) AS [result]\n\n--   File Name\n\nSELECT\n    TOP 100 \n    result.filename()  as file_name,\n    result.*\nFROM\n    OPENROWSET(\n        BULK '/raw/trip_data_green_csv/year=*/month=*/*.csv',\n              \n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) AS [result]\n\n\n\n--   File Path\n\nSELECT\n    TOP 100 \n    result.filename()  as file_name,\n    result.filepath()  as file_path,\n    result.*\nFROM\n    OPENROWSET(\n        BULK '/raw/trip_data_green_csv/year=*/month=*/*.csv',\n              \n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) AS [result]    \n\n\n\n--  Get Year from file path it wil check based on =   in filePath\n\nSELECT\n    TOP 100 \n    result.filename()  as file_name,\n    result.filepath()  as file_path,\n    result.filepath(1)  as [YEAR],\n    result.filepath(2)  as [Month],\n    result.*\nFROM\n    OPENROWSET(\n        BULK '/raw/trip_data_green_csv/year=*/month=*/*.csv',\n              \n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) AS [result] \n\n-- use filepath in where clause to filter files\nSELECT\n    TOP 100 \n    result.filename()  as file_name,\n    result.filepath()  as file_path,\n    result.filepath(1)  as [YEAR],\n    result.filepath(2)  as [Month],\n    result.*\nFROM\n    OPENROWSET(\n        BULK '/raw/trip_data_green_csv/year=*/month=*/*.csv',\n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) as [result]\n    WHERE  result.filepath(1)  ='2020'\n    AND result.filepath(2)  IN ('01','02','03');",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

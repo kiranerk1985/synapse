@@ -1,0 +1,20 @@
+{
+	"name": "6-calender",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/discovery"
+		},
+		"content": {
+			"query": "-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK '/raw/calendar.csv',\n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    \n    ) AS [result]\n\n-- get data types\n\n-- This is auto-generated code\nEXEC sp_describe_first_result_set N'\n\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK ''/raw/calendar.csv'',\n        DATA_SOURCE=''nyc_taxi_data'',\n        FORMAT = ''CSV'',\n        PARSER_VERSION = ''2.0'',\n        HEADER_ROW=TRUE\n    \n    ) AS [result]\n    '\n-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK '/raw/calendar.csv',\n        DATA_SOURCE='nyc_taxi_data',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    \n    )\n WITH (date_key bigint,\n        date date,\n        year bigint,\n        month bigint,\n        day bigint,\n        day_name varchar(10),\n        day_of_year bigint,\n        week_of_month bigint,\n        week_of_year bigint,\n        month_name varchar(10),\n        year_month bigint,\n        year_week bigint\n) AS [result] ;\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

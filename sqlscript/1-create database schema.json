@@ -1,0 +1,20 @@
+{
+	"name": "1-create database schema",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/ldw"
+		},
+		"content": {
+			"query": "--CREATE DATABASE  nyc_tax_ldw\nGO\n--ALTER DATABASE nyc_tax_ldw COLLATE Latin1_General_100_BIN2_UTF8\nGO\n\nUSE nyc_tax_ldw\nGO\nCREATE SCHEMA Bronze;\nGO\nCREATE SCHEMA Silver;\nGO\nCREATE SCHEMA Gold;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_tax_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

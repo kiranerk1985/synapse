@@ -1,0 +1,20 @@
+{
+	"name": "4-subset",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/discovery"
+		},
+		"content": {
+			"query": "SELECT\n    *\n    \nFROM\n    OPENROWSET(\n        BULK 'abfss://nyc-taxi-data@azuresynapsestorage1202.dfs.core.windows.net/raw/taxi_zone.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW=TRUE\n    ) \n/* you need to sepcify the ordinal position when slelecting few columns or it will\ntake in order */\nWITH (LocationID SMALLINT  1\n     \n     ,Zone VARCHAR(50)   3\n                        \n     ) as [result]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
