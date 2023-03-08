@@ -1203,6 +1203,52 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/10-taxi-data-delta')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "NTCTaxi/ldw"
+				},
+				"content": {
+					"query": "--DROP EXTERNAL TABLE Bronze.taxi_data_delta;\nCREATE EXTERNAL TABLE Bronze.taxi_data_delta (\n\t VendorID  int,\n    lpep_pickup_datetime  datetime2(7),\n    lpep_dropoff_datetime  datetime2(7),\n    store_and_fwd_flag  varchar(20),\n    RatecodeID  int,\n    PULocationID  int,\n    DOLocationID  int,\n    passenger_count  int,\n    trip_distance  float,\n    fare_amount  float,\n    extra  float,\n    mta_tax  float,\n    tip_amount  float,\n    tolls_amount  float,\n    ehail_fee  int,\n    improvement_surcharge  float,\n    total_amount  float,\n    payment_type  int,\n    trip_type  int,\n    congestion_surcharge  float\n\t)\n\tWITH (\n\tLOCATION = 'raw/trip_data_green_delta',\n\tDATA_SOURCE = nyc_taxi_src,\n\tFILE_FORMAT = delta_file_format\n\t)\nGO\n\n\nSELECT TOP 100 * FROM Bronze.taxi_data_delta\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc_tax_ldw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/11-createRateCodeView')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "NTCTaxi/ldw"
+				},
+				"content": {
+					"query": "\nCREATE VIEW Bronze.vw_rate_code\nAS\nSELECT\n      -- JSON_VALUE(jsonDoc,'$.payment_type') as payment_type,\n      --JSON_VALUE(jsonDoc,'$.payment_type_desc[0].value') as payment_type_desc_0,\n      -- JSON_VALUE(jsonDoc,'$.payment_type_desc[1].value') as payment_type_desc_1\n    rate_code_id,rate_code\nFROM \n    OPENROWSET(\n            BULK '/raw/rate_code_multi_line.json',\n            DATA_SOURCE='nyc_taxi_src' ,\n            FORMAT='CSV',\n            PARSER_VERSION='1.0',\n            FIELDTERMINATOR='0x0b',\n            FIELDQUOTE='0x0b',\n            ROWTERMINATOR='0x0b'\n    ) \n    WITH (jsonDoc NVARCHAR(MAX)) as payment_trip\n    CROSS APPLY OPENJSON(jsonDoc)\n    WITH (\n      rate_code_id TINYINT,\n      rate_code NVARCHAR(200) \n    )\n      \n    ; \nGO\n    SELECT * FROM Bronze.vw_rate_code;\n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc_tax_ldw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/11-paymentTypeArray-JSON')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -1441,7 +1487,7 @@
 					"name": "NTCTaxi/ldw"
 				},
 				"content": {
-					"query": "USE nyc_tax_ldw;\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='csv_file_format')\nCREATE EXTERNAL FILE FORMAT csv_file_format\nWITH\n(\n    FORMAT_TYPE=DELIMITEDTEXT,\n\n    FORMAT_OPTIONS (  FIELD_TERMINATOR = ','\n                      , STRING_DELIMITER ='\"'\n                      , FIRST_ROW=2\n                      , USE_TYPE_DEFAULT=FALSE\n                      , ENCODING='UTF8' \n                      , PARSER_VERSION ='2.0'\n                    )\n\n);\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='csv_file_format_pw1')\nCREATE EXTERNAL FILE FORMAT csv_file_format_pw1\nWITH\n(\n    FORMAT_TYPE=DELIMITEDTEXT,\n\n    FORMAT_OPTIONS (  FIELD_TERMINATOR = ','\n                      , STRING_DELIMITER ='\"'\n                      , FIRST_ROW=2\n                      , USE_TYPE_DEFAULT=FALSE\n                      , ENCODING='UTF8' \n                      , PARSER_VERSION ='1.0'\n                    )\n\n);\n\n\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='tsv_file_format')\nCREATE EXTERNAL FILE FORMAT tsv_file_format\nWITH\n(\n    FORMAT_TYPE=DELIMITEDTEXT,\n\n    FORMAT_OPTIONS (  FIELD_TERMINATOR = '\\t'\n                      , STRING_DELIMITER ='\"'\n                      , FIRST_ROW=2\n                      , USE_TYPE_DEFAULT=FALSE\n                      , ENCODING='UTF8' \n                      , PARSER_VERSION ='1.0'\n                    )\n\n);\n",
+					"query": "USE nyc_tax_ldw;\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='csv_file_format')\nCREATE EXTERNAL FILE FORMAT csv_file_format\nWITH\n(\n    FORMAT_TYPE=DELIMITEDTEXT,\n\n    FORMAT_OPTIONS (  FIELD_TERMINATOR = ','\n                      , STRING_DELIMITER ='\"'\n                      , FIRST_ROW=2\n                      , USE_TYPE_DEFAULT=FALSE\n                      , ENCODING='UTF8' \n                      , PARSER_VERSION ='2.0'\n                    )\n\n);\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='csv_file_format_pw1')\nCREATE EXTERNAL FILE FORMAT csv_file_format_pw1\nWITH\n(\n    FORMAT_TYPE=DELIMITEDTEXT,\n\n    FORMAT_OPTIONS (  FIELD_TERMINATOR = ','\n                      , STRING_DELIMITER ='\"'\n                      , FIRST_ROW=2\n                      , USE_TYPE_DEFAULT=FALSE\n                      , ENCODING='UTF8' \n                      , PARSER_VERSION ='1.0'\n                    )\n\n);\n\n\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='tsv_file_format')\nCREATE EXTERNAL FILE FORMAT tsv_file_format\nWITH\n(\n    FORMAT_TYPE=DELIMITEDTEXT,\n\n    FORMAT_OPTIONS (  FIELD_TERMINATOR = '\\t'\n                      , STRING_DELIMITER ='\"'\n                      , FIRST_ROW=2\n                      , USE_TYPE_DEFAULT=FALSE\n                      , ENCODING='UTF8' \n                      , PARSER_VERSION ='1.0'\n                    )\n\n);\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='parquet_file_format')\nCREATE EXTERNAL FILE FORMAT parquet_file_format\nWITH\n(\n    FORMAT_TYPE=PARQUET,\n    DATA_COMPRESSION= 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n\n\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='delta_file_format')\nCREATE EXTERNAL FILE FORMAT delta_file_format\nWITH\n(\n    FORMAT_TYPE=DELTA,\n    DATA_COMPRESSION= 'org.apache.hadoop.io.compress.SnappyCodec'\n);",
 					"metadata": {
 						"language": "sql"
 					},
@@ -1686,6 +1732,29 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/9-taxi-date-parquet')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "NTCTaxi/ldw"
+				},
+				"content": {
+					"query": "--DROP EXTERNAL TABLE Bronze.trace_data_parquet ;\nCREATE EXTERNAL TABLE Bronze.taxi_data_parquet (\n\t VendorID  int,\n    lpep_pickup_datetime  datetime2(7),\n    lpep_dropoff_datetime  datetime2(7),\n    store_and_fwd_flag  varchar(20),\n    RatecodeID  int,\n    PULocationID  int,\n    DOLocationID  int,\n    passenger_count  int,\n    trip_distance  float,\n    fare_amount  float,\n    extra  float,\n    mta_tax  float,\n    tip_amount  float,\n    tolls_amount  float,\n    ehail_fee  int,\n    improvement_surcharge  float,\n    total_amount  float,\n    payment_type  int,\n    trip_type  int,\n    congestion_surcharge  float\n\t)\n\tWITH (\n\tLOCATION = 'raw/trip_data_green_parquet/**',\n\tDATA_SOURCE = nyc_taxi_src,\n\tFILE_FORMAT = parquet_file_format\n\t)\nGO\n\n\nSELECT TOP 100 * FROM Bronze.taxi_data_parquet\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc_tax_ldw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -1749,6 +1818,23 @@
 						"poolName": "Built-in"
 					},
 					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/12-')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "NTCTaxi/ldw"
+				},
+				"content": {
+					"metadata": {
+						"language": "sql"
+					}
 				},
 				"type": "SqlQuery"
 			},
