@@ -1,0 +1,20 @@
+{
+	"name": "10-taxi-data-delta",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/ldw"
+		},
+		"content": {
+			"query": "--DROP EXTERNAL TABLE Bronze.taxi_data_delta;\nCREATE EXTERNAL TABLE Bronze.taxi_data_delta (\n\t VendorID  int,\n    lpep_pickup_datetime  datetime2(7),\n    lpep_dropoff_datetime  datetime2(7),\n    store_and_fwd_flag  varchar(20),\n    RatecodeID  int,\n    PULocationID  int,\n    DOLocationID  int,\n    passenger_count  int,\n    trip_distance  float,\n    fare_amount  float,\n    extra  float,\n    mta_tax  float,\n    tip_amount  float,\n    tolls_amount  float,\n    ehail_fee  int,\n    improvement_surcharge  float,\n    total_amount  float,\n    payment_type  int,\n    trip_type  int,\n    congestion_surcharge  float\n\t)\n\tWITH (\n\tLOCATION = 'raw/trip_data_green_delta',\n\tDATA_SOURCE = nyc_taxi_src,\n\tFILE_FORMAT = delta_file_format\n\t)\nGO\n\n\nSELECT TOP 100 * FROM Bronze.taxi_data_delta\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_tax_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

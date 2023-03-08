@@ -1,0 +1,20 @@
+{
+	"name": "11-createRateCodeView",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/ldw"
+		},
+		"content": {
+			"query": "\nCREATE VIEW Bronze.vw_rate_code\nAS\nSELECT\n      -- JSON_VALUE(jsonDoc,'$.payment_type') as payment_type,\n      --JSON_VALUE(jsonDoc,'$.payment_type_desc[0].value') as payment_type_desc_0,\n      -- JSON_VALUE(jsonDoc,'$.payment_type_desc[1].value') as payment_type_desc_1\n    rate_code_id,rate_code\nFROM \n    OPENROWSET(\n            BULK '/raw/rate_code_multi_line.json',\n            DATA_SOURCE='nyc_taxi_src' ,\n            FORMAT='CSV',\n            PARSER_VERSION='1.0',\n            FIELDTERMINATOR='0x0b',\n            FIELDQUOTE='0x0b',\n            ROWTERMINATOR='0x0b'\n    ) \n    WITH (jsonDoc NVARCHAR(MAX)) as payment_trip\n    CROSS APPLY OPENJSON(jsonDoc)\n    WITH (\n      rate_code_id TINYINT,\n      rate_code NVARCHAR(200) \n    )\n      \n    ; \nGO\n    SELECT * FROM Bronze.vw_rate_code;\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_tax_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
