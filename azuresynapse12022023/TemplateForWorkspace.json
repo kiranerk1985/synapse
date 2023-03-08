@@ -1272,6 +1272,29 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/12-create view payment type')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "NTCTaxi/ldw"
+				},
+				"content": {
+					"query": "\nCREATE VIEW Bronze.vw_payment_type\nAS\nSELECT\n      payment_type ,       description \n    \nFROM \n    OPENROWSET(\n            BULK '/raw/payment_type.json',\n            DATA_SOURCE='nyc_taxi_src' ,\n            FORMAT='CSV',\n            PARSER_VERSION='1.0',\n            FIELDTERMINATOR='0x0b',\n            FIELDQUOTE='0x0b',\n            ROWTERMINATOR='0x0a'\n    ) \n    WITH (jsonDoc NVARCHAR(MAX)) as payment_trip\n    CROSS APPLY OPENJSON(jsonDoc)\n    WITH (\n      payment_type SMALLINT,\n      description VARCHAR(20) '$.payment_type_desc'\n    );\n      \n    ; \nGO\n    SELECT * FROM Bronze.vw_payment_type;\n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc_tax_ldw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/12-emploreratecodeSON')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -1332,6 +1355,29 @@
 					},
 					"currentConnection": {
 						"databaseName": "nyc_taxi_discovery",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/14-createtaxi_dataProoningview')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "NTCTaxi/ldw"
+				},
+				"content": {
+					"query": "\nSELECT * from Bronze.vw_trip_data  \n\nWHERE month='01' and year=2020\n\n--drop view Bronze.vw_trip_data\nGO\nCREATE VIEW Bronze.vw_trip_data\nAS\nSELECT \n    result.filename()  as file_name,\n    result.filepath() as file_path,\n    result.filepath(1) as year,\n    result.filepath(2) as month,\n    result.* \n   \nFROM    OPENROWSET(\n        BULK '/raw/trip_data_green_parquet/year=*/month=*/*.parquet',\n        DATA_SOURCE='nyc_taxi_src',\n        FORMAT = 'PARQUET'\n    )  \nWITH \n(\n    VendorID  int,\n    lpep_pickup_datetime  datetime2(7),\n    lpep_dropoff_datetime  datetime2(7),\n    store_and_fwd_flag  varchar(20),\n    RatecodeID  int,\n    PULocationID  int,\n    DOLocationID  int,\n    passenger_count  int,\n    trip_distance  float,\n    fare_amount  float,\n    extra  float,\n    mta_tax  float,\n    tip_amount  float,\n    tolls_amount  float,\n    ehail_fee  int,\n    improvement_surcharge  float,\n    total_amount  float,\n    payment_type  int,\n    trip_type  int,\n    congestion_surcharge  float\n) as [result]\n;    \n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc_tax_ldw",
 						"poolName": "Built-in"
 					},
 					"resultLimit": 5000
@@ -1778,6 +1824,26 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 2')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "select * from  Bronze.taxi_data_parquet\nwhere MONTH='01' and year=2020",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc_tax_ldw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/demo Query Parquet files')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -1818,23 +1884,6 @@
 						"poolName": "Built-in"
 					},
 					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/12-')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "NTCTaxi/ldw"
-				},
-				"content": {
-					"metadata": {
-						"language": "sql"
-					}
 				},
 				"type": "SqlQuery"
 			},
