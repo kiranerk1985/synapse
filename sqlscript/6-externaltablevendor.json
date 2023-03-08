@@ -1,0 +1,20 @@
+{
+	"name": "6-externaltablevendor",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/ldw"
+		},
+		"content": {
+			"query": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES  WHERE  TABLE_NAME='vendor' AND TABLE_SCHEMA='Bronze')\nDROP EXTERNAL TABLE Bronze.vendor;\nGO\nCREATE EXTERNAL TABLE  Bronze.vendor\n(\n    trip_type SMALLINT,\n    trip_type_desc VARCHAR(40),\n)\nWITH \n(\n    LOCATION='raw/trip-type.tsv',\n    DATA_SOURCE= nyc_taxi_src,\n    FILE_FORMAT= csv_file_format_pw1,\n    REJECT_VALUE=10,\n    REJECTED_ROW_LOCATION='rejections/vendor'\n);\nGO\n\nSELECT * From   Bronze.vendor;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

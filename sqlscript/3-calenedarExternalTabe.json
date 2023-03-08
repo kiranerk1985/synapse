@@ -1,0 +1,20 @@
+{
+	"name": "3-calenedarExternalTabe",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/ldw"
+		},
+		"content": {
+			"query": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES  WHERE  TABLE_NAME='calender' AND TABLE_SCHEMA='Bronze')\nDROP EXTERNAL TABLE Bronze.calender;\nGO\nCREATE EXTERNAL TABLE  Bronze.calendar\n(\n    date_key bigint,\n    date date,\n    year bigint,\n    month bigint,\n    day bigint,\n    day_name varchar(10),\n    day_of_year bigint,\n    week_of_month bigint,\n    week_of_year bigint,\n    month_name varchar(10),\n    year_month bigint,\n    year_week bigint\n)\nWITH \n(\n    LOCATION='raw/calendar.csv',\n    DATA_SOURCE= nyc_taxi_src,\n    FILE_FORMAT= csv_file_format_pw1,\n    REJECT_VALUE=10,\n    REJECTED_ROW_LOCATION='rejections/calender'\n);\n\n\nSELECT * From   Bronze.calendar;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_tax_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
