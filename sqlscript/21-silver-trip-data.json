@@ -1,0 +1,20 @@
+{
+	"name": "21-silver-trip-data",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/ldw"
+		},
+		"content": {
+			"query": "IF object_id('Silver.trip_data') IS NOT NULL\n    DROP EXTERNAL TABLE Silver.trip_data\nGO\n\nCREATE EXTERNAL TABLE  Silver.trip_data\nWITH\n  (\n      DATA_SOURCE = nyc_taxi_src,\n      LOCATION= 'silver/trip_data',\n      FILE_FORMAT=parquet_file_format\n\n  )\nAS\nSELECT *\nFROM Bronze.trip_data;\ngo",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
