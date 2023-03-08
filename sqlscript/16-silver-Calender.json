@@ -1,0 +1,20 @@
+{
+	"name": "16-silver-Calender",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/ldw"
+		},
+		"content": {
+			"query": "IF object_id('Silver.calendar') IS NOT NULL\n    DROP EXTERNAL TABLE Silver.calendar\nGO\n\nCREATE EXTERNAL TABLE  Silver.calendar\nWITH\n  (\n      DATA_SOURCE = nyc_taxi_src,\n      LOCATION= 'silver/calendar',\n      FILE_FORMAT=parquet_file_format\n\n  )\nAS\nSELECT *\nFROM Bronze.calendar;\ngo",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_tax_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
