@@ -1732,7 +1732,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/26-gold taxi_data')]",
+			"name": "[concat(parameters('workspaceName'), '/26-gold  viewtaxi_data')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
@@ -1740,7 +1740,7 @@
 					"name": "NTCTaxi/ldw"
 				},
 				"content": {
-					"query": "\n\n\n--drop view Bronze.vw_trip_data\nGO\nCREATE VIEW gold.vw_trip_data_green_patitioned_table\nAS\nSELECT \n    result.filename()   as file_name,\n    result.filepath() as file_path,\n    result.filepath(1) as year,\n    result.filepath(2) as month,\n    result.* \n   \nFROM    OPENROWSET(\n        BULK '/gold/trip_data_green/year=*/month=*/*.parquet',\n        DATA_SOURCE='nyc_taxi_src',\n        FORMAT = 'PARQUET'\n    )  \nWITH \n(\n    \n) as [result]\n;    \n",
+					"query": "\n\n\n--drop view Bronze.vw_trip_data\nGO\nCREATE VIEW Gold.vw_trip_data_green_patitioned_table\nAS\nSELECT \n    \n    result.filepath(1) as year,\n    result.filepath(2) as month\n    ,result.*\n   \nFROM    OPENROWSET(\n        BULK '/gold/trip_data_green/year=*/month=*/*.parquet',\n        DATA_SOURCE='nyc_taxi_src',\n        FORMAT = 'PARQUET'\n    )  \nWITH \n(\n    borough    NVARCHAR(20)\n    ,trip_date  DATE \n    ,trip_day   VARCHAR(20)\n    ,trip_day_weekend  VARCHAR(20)\n    ,description     VARCHAR(20)\n    ,credit_card_count  INT\n    ,cash_trip_count INT\n    \n) as [result]\n;    \n",
 					"metadata": {
 						"language": "sql"
 					},
@@ -2189,6 +2189,29 @@
 			"properties": {
 				"content": {
 					"query": "select distinct pu_loation_id\nfrom  [Silver].[vw_trip_data_green_patitioned_table]\nwhere year='2020' and month='01'\n\n\nselect top 10 * from   Silver.trip_data_green_2020_01\n\n\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_01\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_02\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_03\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_04\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_05\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_06\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_07\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc_tax_ldw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 7')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "NTCTaxi/usp"
+				},
+				"content": {
+					"query": "",
 					"metadata": {
 						"language": "sql"
 					},
