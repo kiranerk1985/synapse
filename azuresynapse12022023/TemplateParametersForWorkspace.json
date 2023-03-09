@@ -9,7 +9,7 @@
 			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:azuresynapse12022023.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
 		},
 		"ls_synapsesqlserverlesspool_connectionString": {
-			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:azuresynapse12022023-ondemand.sql.azuresynapse.net,1433;Initial Catalog=nyc_taxi_ldw"
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:azuresynapse12022023-ondemand.sql.azuresynapse.net,1433;Initial Catalog=nyc_tax_ldw"
 		},
 		"azuresynapse12022023-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://azuresynapsestorage1202.dfs.core.windows.net"
