@@ -116,6 +116,77 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/1-pl_silver_taxi_zone_sp')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Delete1",
+						"type": "Delete",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_silver_taxi_zone_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"enableLogging": false,
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "Stored procedure1",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Delete1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[dbo].[usp_silver_taxi_zone]"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_synapsesqlserverlesspool",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/ds_silver_taxi_zone_parquet')]",
+				"[concat(variables('workspaceId'), '/linkedServices/ls_synapsesqlserverlesspool')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ds_silver_taxi_zone_parquet')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -1333,7 +1404,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/1-usp-silver-taxi-zone')]",
+			"name": "[concat(parameters('workspaceName'), '/1-usp-silver-trip-data')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
@@ -1963,6 +2034,29 @@
 				},
 				"content": {
 					"query": "USE nyc_tax_ldw;\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='csv_file_format')\nCREATE EXTERNAL FILE FORMAT csv_file_format\nWITH\n(\n    FORMAT_TYPE=DELIMITEDTEXT,\n\n    FORMAT_OPTIONS (  FIELD_TERMINATOR = ','\n                      , STRING_DELIMITER ='\"'\n                      , FIRST_ROW=2\n                      , USE_TYPE_DEFAULT=FALSE\n                      , ENCODING='UTF8' \n                      , PARSER_VERSION ='2.0'\n                    )\n\n);\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='csv_file_format_pw1')\nCREATE EXTERNAL FILE FORMAT csv_file_format_pw1\nWITH\n(\n    FORMAT_TYPE=DELIMITEDTEXT,\n\n    FORMAT_OPTIONS (  FIELD_TERMINATOR = ','\n                      , STRING_DELIMITER ='\"'\n                      , FIRST_ROW=2\n                      , USE_TYPE_DEFAULT=FALSE\n                      , ENCODING='UTF8' \n                      , PARSER_VERSION ='1.0'\n                    )\n\n);\n\n\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='tsv_file_format')\nCREATE EXTERNAL FILE FORMAT tsv_file_format\nWITH\n(\n    FORMAT_TYPE=DELIMITEDTEXT,\n\n    FORMAT_OPTIONS (  FIELD_TERMINATOR = '\\t'\n                      , STRING_DELIMITER ='\"'\n                      , FIRST_ROW=2\n                      , USE_TYPE_DEFAULT=FALSE\n                      , ENCODING='UTF8' \n                      , PARSER_VERSION ='1.0'\n                    )\n\n);\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='parquet_file_format')\nCREATE EXTERNAL FILE FORMAT parquet_file_format\nWITH\n(\n    FORMAT_TYPE=PARQUET,\n    DATA_COMPRESSION= 'org.apache.hadoop.io.compress.SnappyCodec'\n);\n\n\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats  WHERE name ='delta_file_format')\nCREATE EXTERNAL FILE FORMAT delta_file_format\nWITH\n(\n    FORMAT_TYPE=DELTA,\n    DATA_COMPRESSION= 'org.apache.hadoop.io.compress.SnappyCodec'\n);",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc_tax_ldw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/3-usp-sliver-taxi-zone')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "NTCTaxi/usp"
+				},
+				"content": {
+					"query": "\nCREATE OR ALTER PROCEDURE dbo.usp_silver_taxi_zone\nAS\nBEGIN\n    IF object_id('Silver.taxi_zone') IS NOT NULL\n        DROP EXTERNAL TABLE Silver.taxi_zone\n    \n\n    CREATE EXTERNAL TABLE  Silver.taxi_zone\n    WITH\n      (\n          DATA_SOURCE = nyc_taxi_src,\n          LOCATION= 'silver/taxi_zone',\n          FILE_FORMAT=parquet_file_format\n\n      )\n    AS\n    SELECT *\n    FROM Bronze.taxi_zone;\n\nEND",
 					"metadata": {
 						"language": "sql"
 					},
