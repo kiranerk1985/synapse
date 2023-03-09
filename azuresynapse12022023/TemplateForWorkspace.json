@@ -1663,6 +1663,52 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/22-silverview taxi_data')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "NTCTaxi/ldw"
+				},
+				"content": {
+					"query": "\n\n\n--drop view Bronze.vw_trip_data\nGO\nCREATE VIEW Silver.vw_trip_data_green_patitioned_table\nAS\nSELECT \n    result.filename()   as file_name,\n    result.filepath() as file_path,\n    result.filepath(1) as year,\n    result.filepath(2) as month,\n    result.* \n   \nFROM    OPENROWSET(\n        BULK '/silver/trip_data_green/year=*/month=*/*.parquet',\n        DATA_SOURCE='nyc_taxi_src',\n        FORMAT = 'PARQUET'\n    )  \nWITH \n(\n    VendorID  int,\n    lpep_pickup_datetime  datetime2(7),\n    lpep_dropoff_datetime  datetime2(7),\n    store_and_fwd_flag  varchar(20),\n    RatecodeID  int,\n    PULocationID  int,\n    DOLocationID  int,\n    passenger_count  int,\n    trip_distance  float,\n    fare_amount  float,\n    extra  float,\n    mta_tax  float,\n    tip_amount  float,\n    tolls_amount  float,\n    ehail_fee  int,\n    improvement_surcharge  float,\n    total_amount  float,\n    payment_type  int,\n    trip_type  int,\n    congestion_surcharge  float\n) as [result]\n;    \n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc_tax_ldw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/25-gold-tripdata')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "NTCTaxi/ldw"
+				},
+				"content": {
+					"query": "SELECT distinct year,month\nfrom Silver.vw_trip_data",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "nyc_tax_ldw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/3-calenedarExternalTabe')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -2037,6 +2083,26 @@
 				},
 				"content": {
 					"query": " DECLARE @create_sql_stmt NVARCHAR(4000);\n            --@drop_sql_stmt NVARCHAR(4000);\ndeclare @year varchar(20) ,@month varchar(2)\n\nset @year='2021'\nset @month='01'\n\n    SET @create_sql_stmt='\n                CREATE EXTERNAL TABLE  Silver.trip_data_green_'+@year+'_'+@month+\n                ' WITH\n                (\n                    DATA_SOURCE = nyc_taxi_src, \n                    LOCATION= ''silver/trip_data_green/year='+@year+'/month='+@month+''',\n                    FILE_FORMAT=parquet_file_format\n\n                )\n                AS\n                SELECT  VendorID  AS Vendor_id,\n                        lpep_pickup_datetime  ,\n                        lpep_dropoff_datetime ,\n                        store_and_fwd_flag  ,\n                        RatecodeID  as rate_code_id ,\n                        PULocationID  as pu_loation_id ,\n                        DOLocationID  as do_location_id ,\n                        passenger_count  ,\n                        trip_distance ,\n                        fare_amount  ,\n                        extra  ,\n                        mta_tax  ,\n                        tip_amount  ,\n                        tolls_amount  ,\n                        ehail_fee  ,\n                        improvement_surcharge  ,\n                        total_amount  ,\n                        payment_type ,\n                        trip_type  ,\n                        congestion_surcharge  float\n                FROM Bronze.vw_trip_data\n                WHERE year='''+@year+'''\n                and month ='''+ @month+'''';\n                \nprint @create_sql_stmt;",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "master",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 4')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'https://azuresynapsestorage1202.dfs.core.windows.net/nyc-taxi-data/silver/trip_data_green/year=2021/month=01/**',\n        FORMAT = 'PARQUET'\n    ) AS [result]\n",
 					"metadata": {
 						"language": "sql"
 					},
