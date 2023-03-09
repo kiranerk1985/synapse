@@ -1,0 +1,20 @@
+{
+	"name": "SQL script 7",
+	"properties": {
+		"folder": {
+			"name": "NTCTaxi/usp"
+		},
+		"content": {
+			"query": "",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_tax_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
