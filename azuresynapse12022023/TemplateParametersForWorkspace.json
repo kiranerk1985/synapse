@@ -13,6 +13,9 @@
 		},
 		"bing-covid-19-data_sasUri": {
 			"value": ""
+		},
+		"ls_s_properties_typeProperties_url": {
+			"value": "https://azuresynapsestorage1202.dfs.core.windows.net/"
 		}
 	}
 }
