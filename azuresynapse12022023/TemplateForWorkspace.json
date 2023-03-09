@@ -1188,7 +1188,7 @@
 					"name": "NTCTaxi/usp"
 				},
 				"content": {
-					"query": "use nyc_tax_ldw;\n\nGO\nCREATE OR ALTER PROCEDURE  usp_silver_taxi_zone\n@year VARCHAR(4),\n@month VARCHAR(2)\nAS\nBEGIN\n    DECLARE @create_sql_stmt NVARCHAR(2000),\n            @drop_sql_stmt NVARCHAR(4000);\n\n    SET @create_sql_stmt='\n                CREATE EXTERNAL TABLE  Silver.trip_data_green_'+@year+'_'+@month+\n                'WITH\n                (\n                    DATA_SOURCE = nyc_taxi_src, \n                    LOCATION= silver/trip_data_green_'+@year+'_'+@month+\n                    FILE_FORMAT=parquet_file_format\n\n                )\n                AS\n                SELECT  VendorID  AS Vendor_id,\n                        lpep_pickup_datetime  ,\n                        lpep_dropoff_datetime ,\n                        store_and_fwd_flag  ,\n                        RatecodeID  as rate_code_id ,\n                        PULocationID  as pu_loation_id ,\n                        DOLocationID  as do_location_id ,\n                        passenger_count  ,\n                        trip_distance ,\n                        fare_amount  ,\n                        extra  ,\n                        mta_tax  ,\n                        tip_amount  ,\n                        tolls_amount  ,\n                        ehail_fee  ,\n                        improvement_surcharge  ,\n                        total_amount  ,\n                        payment_type ,\n                        trip_type  ,\n                        congestion_surcharge  float\n                FROM Bronze.vw_trip_data\n                WHERE year='''+@year+'''\n                and month ='''+ @month'''\n                ';\n\n    EXEC sp_executesql @create_sql_stmt ;\n\nEND",
+					"query": "/*EXEC usp_silver_taxi_zone '2021','01'*/\nCREATE OR ALTER PROCEDURE  usp_silver_taxi_zone\n@year VARCHAR(4),\n@month VARCHAR(2)\nAS\nBEGIN\n    DECLARE @create_sql_stmt NVARCHAR(4000);\n            --@drop_sql_stmt NVARCHAR(4000);\n\n    SET @create_sql_stmt='\n                CREATE EXTERNAL TABLE  Silver.trip_data_green_'+@year+'_'+@month+\n                ' WITH\n                (\n                    DATA_SOURCE = nyc_taxi_src, \n                    LOCATION= ''silver/trip_data_green/year='+@year+'/month='+@month+''',\n                    FILE_FORMAT=parquet_file_format\n\n                )\n                AS\n                SELECT  VendorID  AS Vendor_id,\n                        lpep_pickup_datetime  ,\n                        lpep_dropoff_datetime ,\n                        store_and_fwd_flag  ,\n                        RatecodeID  as rate_code_id ,\n                        PULocationID  as pu_loation_id ,\n                        DOLocationID  as do_location_id ,\n                        passenger_count  ,\n                        trip_distance ,\n                        fare_amount  ,\n                        extra  ,\n                        mta_tax  ,\n                        tip_amount  ,\n                        tolls_amount  ,\n                        ehail_fee  ,\n                        improvement_surcharge  ,\n                        total_amount  ,\n                        payment_type ,\n                        trip_type  ,\n                        congestion_surcharge  float\n                FROM Bronze.vw_trip_data\n                WHERE year='''+@year+'''\n                and month ='''+ @month+'''';\n                \n\n    EXEC sp_executesql @create_sql_stmt ;\nEND",
 					"metadata": {
 						"language": "sql"
 					},
@@ -2019,6 +2019,29 @@
 					},
 					"currentConnection": {
 						"databaseName": "nyc_tax_ldw",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 3')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "NTCTaxi/usp"
+				},
+				"content": {
+					"query": " DECLARE @create_sql_stmt NVARCHAR(4000);\n            --@drop_sql_stmt NVARCHAR(4000);\ndeclare @year varchar(20) ,@month varchar(2)\n\nset @year='2021'\nset @month='01'\n\n    SET @create_sql_stmt='\n                CREATE EXTERNAL TABLE  Silver.trip_data_green_'+@year+'_'+@month+\n                ' WITH\n                (\n                    DATA_SOURCE = nyc_taxi_src, \n                    LOCATION= ''silver/trip_data_green/year='+@year+'/month='+@month+''',\n                    FILE_FORMAT=parquet_file_format\n\n                )\n                AS\n                SELECT  VendorID  AS Vendor_id,\n                        lpep_pickup_datetime  ,\n                        lpep_dropoff_datetime ,\n                        store_and_fwd_flag  ,\n                        RatecodeID  as rate_code_id ,\n                        PULocationID  as pu_loation_id ,\n                        DOLocationID  as do_location_id ,\n                        passenger_count  ,\n                        trip_distance ,\n                        fare_amount  ,\n                        extra  ,\n                        mta_tax  ,\n                        tip_amount  ,\n                        tolls_amount  ,\n                        ehail_fee  ,\n                        improvement_surcharge  ,\n                        total_amount  ,\n                        payment_type ,\n                        trip_type  ,\n                        congestion_surcharge  float\n                FROM Bronze.vw_trip_data\n                WHERE year='''+@year+'''\n                and month ='''+ @month+'''';\n                \nprint @create_sql_stmt;",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "master",
 						"poolName": "Built-in"
 					},
 					"resultLimit": 5000
