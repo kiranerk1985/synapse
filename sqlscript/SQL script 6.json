@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 6",
+	"properties": {
+		"content": {
+			"query": "select distinct pu_loation_id\nfrom  [Silver].[vw_trip_data_green_patitioned_table]\nwhere year='2020' and month='01'\n\n\nselect top 10 * from   Silver.trip_data_green_2020_01\n\n\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_01\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_02\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_03\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_04\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_05\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_06\ndrop  EXTERNAL TABLE Gold.trip_data_green_2021_07\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_tax_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

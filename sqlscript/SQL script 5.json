@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 5",
+	"properties": {
+		"content": {
+			"query": "SELECT TOP (100) [year]\n,[month]\n,[borough]\n,[trip_date]\n,[trip_day]\n,[trip_day_weekend]\n,[description]\n,[credit_card_count]\n,[cash_trip_count]\n FROM [Gold].[trip_data_green_2020_01]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_tax_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
