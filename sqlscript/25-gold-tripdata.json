@@ -5,7 +5,7 @@
 			"name": "NTCTaxi/ldw"
 		},
 		"content": {
-			"query": "SELECT distinct year,month\nfrom Silver.vw_trip_data",
+			"query": "SELECT TOP 100 year,month\n                ,tz.borough\n                ,CONVERT(DATE,lpep_pickup_datetime) As 'trip_date'\n                ,c.day_name as trip_day\n                ,CASE WHEN c.day_name in ('Satruday','Sunday') THEN 'Y'  ELSE 'N' END as trip_day_weekend\n                \n                \nfrom [Silver].[vw_trip_data_green_patitioned_table] as td\nINNER JOIN Silver.taxi_zone tz ON td.pu_location_id=tz.location_id\nINNER JOIN Silver.calendar c on c.date=CONVERT(DATE,td.lpep_pickup_datetime)\n\n\n\n\nselect * from Silver.taxi_zone\n\n\n\n/*\nEXEC usp_silver_taxi_zone '2020','01'\nEXEC usp_silver_taxi_zone '2020','02'\nEXEC usp_silver_taxi_zone '2020','03'\nEXEC usp_silver_taxi_zone '2020','04'\nEXEC usp_silver_taxi_zone '2020','05'\nEXEC usp_silver_taxi_zone '2020','06'\nEXEC usp_silver_taxi_zone '2020','07'\nEXEC usp_silver_taxi_zone '2020','01'\nEXEC usp_silver_taxi_zone '2020','08'\nEXEC usp_silver_taxi_zone '2020','09'\nEXEC usp_silver_taxi_zone '2020','10'\nEXEC usp_silver_taxi_zone '2020','11'\nEXEC usp_silver_taxi_zone '2020','12'\n\n\n\nEXEC usp_silver_taxi_zone '2021','01'\nEXEC usp_silver_taxi_zone '2021','02'\nEXEC usp_silver_taxi_zone '2021','03'\nEXEC usp_silver_taxi_zone '2021','04'\nEXEC usp_silver_taxi_zone '2021','05'\nEXEC usp_silver_taxi_zone '2021','06'\nEXEC usp_silver_taxi_zone '2021','07'\n*/",
 			"metadata": {
 				"language": "sql"
 			},
